@@ -135,7 +135,7 @@ if limit == None:
     
 
 #create_watts_strogatz_graph()
-create_graph_from_a_list(100000000)
+create_graph_from_a_list(10000000)
 
 #### IMPORT FILE
 #start_time = time.time()

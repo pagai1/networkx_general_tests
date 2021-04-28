@@ -18,7 +18,8 @@ from numpy import number
 def draw_graph(Graph):
     """ Draws the graph """
     nx.draw(Graph, with_labels=True)
-    #plt.plot()
+    #nx.draw_kamada_kawai(Graph,with_labels=True)
+    plt.plot()
     plt.show()
 
 def to_ms(time):
@@ -126,16 +127,40 @@ def create_graph_from_csv_file(csvfile):
                     G.add_edges_from([(row['original_title'], keyword)], type="HAS_KEYWORD" )
 
 
+def create_graph_from_neo4j_csv(G,filePath):
+    with open(filePath,'r') as csv_file:
+        reader = csv.DictReader(csv_file,quotechar = '"', delimiter=',')
+        for line in reader:
+            if line['_id'] != "":
+                G.add_node(line['_id'], weight=line['occur'], label=line['_labels'], name=line['name'])
+            else:
+                G.add_edge(line['_start'],line['_end'],type=line['_type'],cost=line['cost'],count=['count'],dice=['dice'])
+                G.add_edge(line['_end'],line['_start'],type=line['_type'],cost=line['cost'],count=['count'],dice=['dice']) 
+ 
+    start_time = time.time() 
+    dict_nodes = nx.closeness_centrality(G)
+    print("ZEIT: " + str(time.time() - start_time))
+
 ##### HIER GEHTS LOS ##############
 filepath='/home/pagai/graph-data/tmdb.csv'
 file = open(filepath, 'r')
 limit = sys.argv[0]
 if limit == None:
     limit=100
+ 
+
+G = nx.Graph()
+filePath='/home/pagai/graph-data/cooccsdatabase/cooccsdb.csv'
+
+# Loading headers
+header_reader = csv.reader(filePath)
+print("HEADERS : " + str(get_column_names(header_reader)))
+
+create_graph_from_neo4j_csv(G, filePath)
     
 
 #create_watts_strogatz_graph()
-create_graph_from_a_list(10000000)
+#create_graph_from_a_list(10000000)
 
 #### IMPORT FILE
 #start_time = time.time()
@@ -156,6 +181,6 @@ create_graph_from_a_list(10000000)
 
 #print(pagerank_scipy(subG))
 #if limit < 100:
-#    draw_graph(G)
+draw_graph(G)
 
 print("FERTIG")

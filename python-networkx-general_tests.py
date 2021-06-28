@@ -9,6 +9,12 @@ import yaml
 import matplotlib.pyplot as plt
 from builtins import len
 
+# import own helper-modules
+sys.path.append(os.path.abspath(os.path.join(os.path.realpath(__file__),"../../networkx_modules")))
+from helpers.generalStuff import *
+from helpers.networkx_load_n_save import *
+from algoPackage.pageRank import *
+
 from networkx.algorithms.coloring.greedy_coloring_with_interchange import Node
 from networkx.classes.function import get_node_attributes
 from networkx.readwrite import json_graph
@@ -34,9 +40,6 @@ def get_column_names(filereader):
 
 def remove_doubles(inputlist):
     return list(set(inputlist))
-
-
-
 
 def print_all(G):
     print("LE GRAPHE: ")
@@ -102,14 +105,13 @@ def create_graph_from_neo4j_csv(G,filePath):
 #draw_graph(G,None)
 
 #number = int(sys.argv[1])
-#for number in list(range(100000,10000001,250000)):
-#    print(number)
-#    create_graph_from_a_list(number)
-#create_graph_from_a_list(number)
-
+for number in list(range(25000,1000000,25000)):
+    print(number)
+    create_graph_from_a_list(number)
     
-#print("NUMBER OF NODES: " + str(G.number_of_nodes()))
-#print("NUMBER OF EDGES: " + str(G.number_of_edges()))
+if mainVerbose:
+    print("NUMBER OF NODES: " + str(G.number_of_nodes()))
+    print("NUMBER OF EDGES: " + str(G.number_of_edges()))
 
 #create_watts_strogatz_graph()
 #create_graph_from_a_list(10000000)
@@ -149,15 +151,15 @@ if (exportFiles):
 #start_time = time.time()
 #G = import_node_link_data_to_graph('/var/tmp/node_link_data_5000.json')
 #print("File load finished in " + str(time.time() - start_time))
-importFiles = True
+importFiles = False
 if (importFiles):
 # IMPORT FILES
-#    start_import_time = time.time()
-#    G = import_node_link_data_to_graph('/var/tmp/export_01_node_link_data.json')
-#    print("Finished in : " + to_ms(time.time() - start_import_time))
-#    print_all(G)
-#    print("=================")
-#    del G
+    start_import_time = time.time()
+    G = import_node_link_data_to_graph('/var/tmp/export_01_node_link_data.json')
+    print("Finished in : " + to_ms(time.time() - start_import_time))
+    print_all(G)
+    print("=================")
+    del G
 #    
 #    start_import_time = time.time()
 #    G = import_graphML_to_graph('/var/tmp/export_02_graphML.json')
@@ -180,12 +182,12 @@ if (importFiles):
 #    print("=================")
 #    del G
        
-    start_import_time = time.time()
-    G = import_yaml_to_graph('/var/tmp/export_05_yaml.yaml')
-    print("Finished in : " + to_ms(time.time() - start_import_time))
-    print_all(G)
-    print("=================")
-    del G
+#    start_import_time = time.time()
+#    G = import_yaml_to_graph('/var/tmp/export_05_yaml.yaml')
+#    print("Finished in : " + to_ms(time.time() - start_import_time))
+#    print_all(G)
+#    print("=================")
+#    del G
     
 #    start_import_time = time.time()
 #    G = import_gml_to_graph('/var/tmp/export_06_gml.gml')
@@ -211,5 +213,5 @@ if (importFiles):
 #print(pagerank_scipy(subG))
 #if limit < 100:
 #draw_graph(G)
-
 #print("FERTIG")
+

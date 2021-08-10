@@ -116,13 +116,14 @@ if mainVerbose:
 #create_watts_strogatz_graph()
 #create_graph_from_a_list(10000000)
 
+# EXPORT FILE
 exportFiles = False
 if (exportFiles):
     G = nx.DiGraph()
     filepath='/home/pagai/graph-data/cooccsdatabase/cooccsdb.csv'
     create_graph_from_neo4j_csv(G, filepath)
 
-# EXPORT FILE
+
     start_export_time = time.time()
     export_graph_to_node_link_data(G, '/var/tmp/export_01_node_link_data.json')
     print("Finished in : " + to_ms(time.time() - start_export_time))

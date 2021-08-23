@@ -4,10 +4,12 @@ import networkx as nx
 #import matplotlib.pyplot as plt
 import time
 import sys
+import os
 import json
 import yaml
 import matplotlib.pyplot as plt
 from builtins import len
+from _tkinter import create
 
 # import own helper-modules
 sys.path.append(os.path.abspath(os.path.join(os.path.realpath(__file__),"../../networkx_modules")))
@@ -57,7 +59,15 @@ def create_graph_from_a_list(numberOfNodes):
     G = nx.Graph()
     startTime=time.time()
     for node in list(range(n)):
+       # Create pure node
         G.add_node(node)
+        # Create node with property
+        #G.add_node(node, name=node)
+        # Create node with label
+        #G.add_node(node, label="SINGLE_NODE")
+        # Create node with property and label
+        #G.add_node(node, label="SINGLE_NODE", name=node)
+    # with export
     stopTime = time.time()
 #    print(str(numberOfNodes) + "," + to_ms(stopTime - startTime) + "," + str(int(round((numberOfNodes / (stopTime - startTime))))))
     start_export_time = time.time()
@@ -85,7 +95,43 @@ def create_graph_from_neo4j_csv(G,filePath):
                 G.add_edge(line['_start'],line['_end'],type=line['_type'],cost=line['cost'],count=line['count'],dice=line['dice'])
                 G.add_edge(line['_end'],line['_start'],type=line['_type'],cost=line['cost'],count=line['count'],dice=line['dice']) 
     print("Done.")
+    
+
+def create_complete_graph(G,attrs=False):
+    nodeList = G.nodes()
+    for node1 in nodeList:
+        for node2 in nodeList:
+            if attrs:
+                G.add_edge(node1,node2,node1=node1,node2=node2)
+            else:
+                G.add_edge(node1,node2)
+
 ##### HIER GEHTS LOS ##############
+filepath='/home/pagai/graph-data/pokec/soc-pokec-relationships_weighted.txt'
+tmpfilepath = "/tmp/tmpfile.csv"
+
+limit = 0
+seclimit=1
+operatorFunction="eq"
+verbose=False
+doExport=True
+doExportTest=False # War nur zum Testen von den unterschiedlichen Arten.
+createByImport=False
+createByImportTest=False
+doAlgo=False
+algoVerbose=False
+
+if (len(sys.argv) == 1):
+    if (verbose):
+        print("NOTHING WAS GIVEN")
+    limit = "100"
+elif (len(sys.argv) == 2):
+    limit = sys.argv[1]
+    if (verbose):
+        print("WORKING WITH " + str(limit))
+
+importExportFileName = "/tmp/node_link_data_export_" + str(limit) + ".json"
+
 #filepath='/home/pagai/graph-data/tmdb.csv'
 #file = open(filepath, 'r')
 #if (sys.argv[1]):
@@ -105,20 +151,31 @@ def create_graph_from_neo4j_csv(G,filePath):
 #draw_graph(G,None)
 
 #number = int(sys.argv[1])
-for number in list(range(25000,1000000,25000)):
-    print(number)
-    create_graph_from_a_list(number)
-    
-if mainVerbose:
+
+########################### Range Test #########################
+#for number in list(range(25000,1000000,25000)):
+#    print(number)
+#    create_graph_from_a_list(number)
+ 
+ 
+########################### EdgeTest ########################### 
+
+G = nx.empty_graph(int(limit),create_using=nx.DiGraph)
+if verbose:
     print("NUMBER OF NODES: " + str(G.number_of_nodes()))
     print("NUMBER OF EDGES: " + str(G.number_of_edges()))
-
+start_time = time.time()
+create_complete_graph(G,attrs=True)
+if verbose:
+    print("NUMBER OF NODES: " + str(G.number_of_nodes()))
+    print("NUMBER OF EDGES: " + str(G.number_of_edges()))
+    for edge in G.edges(data=True):
+        print(edge)
 #create_watts_strogatz_graph()
 #create_graph_from_a_list(10000000)
 
 # EXPORT FILE
-exportFiles = False
-if (exportFiles):
+if (doExportTest):
     G = nx.DiGraph()
     filepath='/home/pagai/graph-data/cooccsdatabase/cooccsdb.csv'
     create_graph_from_neo4j_csv(G, filepath)
@@ -152,8 +209,7 @@ if (exportFiles):
 #start_time = time.time()
 #G = import_node_link_data_to_graph('/var/tmp/node_link_data_5000.json')
 #print("File load finished in " + str(time.time() - start_time))
-importFiles = False
-if (importFiles):
+if (createByImportTest):
 # IMPORT FILES
     start_import_time = time.time()
     G = import_node_link_data_to_graph('/var/tmp/export_01_node_link_data.json')
@@ -197,6 +253,24 @@ if (importFiles):
 #    print("=================")
 #    del G
         
+############ Export/Import ##########
+if createByImport:
+    print("IMPORTING " + importExportFileName)
+    start_time = time.time()
+    G = import_node_link_data_to_graph(importExportFileName, verbose=verbose)
+    if (verbose): 
+        print("IMPORTED FILE: " + importExportFileName)
+        print(nx.info(G))
+
+if doExport:
+    export_graph_to_node_link_data(G, importExportFileName, verbose=verbose)
+
+end_time_full = time.time()
+
+print(str(G.number_of_nodes()),str(G.number_of_edges()),to_ms(end_time_full - start_time),sep=",")
+#if os.path.isfile(importExportFileName):
+#     os.remove(importExportFileName)
+
 
 #G = import_yaml_to_graph('/var/tmp/node_link_data_cooccs_to_yaml.yaml')
 

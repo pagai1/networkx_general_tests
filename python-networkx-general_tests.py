@@ -174,6 +174,9 @@ if verbose:
 #create_watts_strogatz_graph()
 #create_graph_from_a_list(10000000)
 
+##################################################################
+
+##################### EXPORT-TEST ################################
 # EXPORT FILE
 if (doExportTest):
     G = nx.DiGraph()
@@ -205,7 +208,7 @@ if (doExportTest):
     export_graph_to_gml_data(G,'/var/tmp/export_06_gml.gml')
     print("Finished in : " + to_ms(time.time() - start_export_time))
 
-#### IMPORT FILE
+######################### IMPORT  TEST #############################
 #start_time = time.time()
 #G = import_node_link_data_to_graph('/var/tmp/node_link_data_5000.json')
 #print("File load finished in " + str(time.time() - start_time))
